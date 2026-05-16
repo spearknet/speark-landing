@@ -32,7 +32,7 @@ export default function SpearkLanding() {
 
         <div className="mt-12 flex flex-col sm:flex-row gap-4">
           <a
-            href="https://discord.gg/TWOJLINK"
+            href="https://discord.gg/wcp88puzs"
             target="_blank"
             rel="noopener noreferrer"
             className="px-8 py-4 bg-white text-black rounded-2xl font-medium hover:scale-105 transition"

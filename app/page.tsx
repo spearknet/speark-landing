@@ -106,7 +106,7 @@ export default function SpearkLanding() {
 
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
             <a
-              href="https://discord.gg/zRgMFbPsa"
+              href="https://discord.gg/wcp88puzs"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full px-6 py-4 bg-red-600 rounded-2xl hover:bg-red-500 transition font-medium text-center"

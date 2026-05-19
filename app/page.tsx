@@ -30,25 +30,6 @@ export default function SpearkLanding() {
           entrepreneurs, and builders.
         </p>
 
-        <div className="mt-12 flex flex-col sm:flex-row gap-4">
-          <a
-            href="https://discord.gg/wcp88puzs"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-8 py-4 bg-white text-black rounded-2xl font-medium hover:scale-105 transition"
-          >
-            Join Community
-          </a>
-
-          <a
-            href="#vision"
-            className="px-8 py-4 border border-white/20 rounded-2xl text-white/80 hover:bg-white/5 transition"
-          >
-            Learn More
-          </a>
-        </div>
-		<div className="mt-12 flex flex-col sm:flex-row gap-4">
-
   <a
     href="https://discord.gg/wcp88puzs"
     target="_blank"

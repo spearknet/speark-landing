@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 const demoProjects = [
   {
+    id: 0,
     name: "Underground Music Collective",
     category: "Music / Artists",
     lookingFor: "Producers, vocalists, visual artists",
@@ -17,35 +17,10 @@ const demoProjects = [
   },
 ];
 
-
-
 export default function SwipePage() {
+  const [user, setUser] = useState<any>(null);
   const [index, setIndex] = useState(0);
   const [projects, setProjects] = useState<any[]>(demoProjects);
-  useEffect(() => {
-  async function loadProjects() {
-    const { data, error } = await supabase
-      .from("projects")
-      .select("*");
-
-    if (!error && data && data.length > 0) {
-      const formatted = data.map((p) => ({
-        name: p.title,
-        category: p.category,
-        lookingFor: p.looking_for,
-        description: p.description,
-        tags: p.tags || [],
-        members: Math.floor(Math.random() * 8) + 1,
-        location: "Online",
-        owner: "Builder",
-      }));
-
-      setProjects(formatted);
-    }
-  }
-
-  loadProjects();
-}, []);
   const [matches, setMatches] = useState<string[]>([]);
   const [showMatch, setShowMatch] = useState(false);
   const [username, setUsername] = useState("Dr Mikhail");
@@ -53,11 +28,48 @@ export default function SwipePage() {
 
   const project = projects[index];
 
+  useEffect(() => {
+    async function loadData() {
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData.user) setUser(userData.user);
+
+      const { data, error } = await supabase.from("projects").select("*");
+
+      if (!error && data && data.length > 0) {
+        const formatted = data.map((p) => ({
+          id: p.id,
+          name: p.title,
+          category: p.category,
+          lookingFor: p.looking_for,
+          description: p.description,
+          tags: p.tags || [],
+          members: Math.floor(Math.random() * 8) + 1,
+          location: "Online",
+          owner: "Builder",
+        }));
+
+        setProjects(formatted);
+      }
+    }
+
+    loadData();
+  }, []);
+
   function nextProject() {
     setIndex((prev) => (prev + 1) % projects.length);
   }
 
-  function interested() {
+  async function interested() {
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+
+    await supabase.from("matches").insert({
+      user_id: user.id,
+      project_id: project.id,
+    });
+
     setMatches((prev) => [...prev, project.name]);
     setShowMatch(true);
   }
@@ -70,19 +82,20 @@ export default function SwipePage() {
   return (
     <main className="min-h-screen bg-black text-white px-6 py-10 flex flex-col items-center">
       <div className="w-full max-w-5xl flex items-center justify-between mb-10">
-     <a href="/" className="text-white/50 hover:text-white transition">
-  ← Speark
-</a>
+        <a href="/" className="text-white/50 hover:text-white transition">
+          ← Speark
+        </a>
 
-<div className="flex items-center gap-5 text-sm">
-  <a href="/profile" className="text-white/50 hover:text-white transition">
-    Profile
-  </a>
+        <div className="flex items-center gap-5 text-sm">
+          <a href="/profile" className="text-white/50 hover:text-white transition">
+            Profile
+          </a>
 
-  <a href="/create-project" className="text-red-500 hover:text-red-400 transition">
-    + Add Project
-  </a>
-</div>
+          <a href="/create-project" className="text-red-500 hover:text-red-400 transition">
+            + Add Project
+          </a>
+        </div>
+      </div>
 
       <section className="w-full max-w-xl">
         <div className="mb-8">
@@ -154,7 +167,7 @@ export default function SwipePage() {
             </p>
 
             <div className="flex flex-wrap gap-2 mb-8">
-              {project.tags.map((tag) => (
+              {project.tags.map((tag: string) => (
                 <span
                   key={tag}
                   className="text-xs px-3 py-1 rounded-full bg-white/10 text-white/70"

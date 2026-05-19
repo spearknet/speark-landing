@@ -7,8 +7,7 @@ const projects = [
     name: "Underground Music Collective",
     category: "Music / Artists",
     lookingFor: "Producers, vocalists, visual artists",
-    description:
-      "A dark underground music project connecting unknown artists, producers, and visual creators.",
+    description: "Connecting unknown artists, producers, and visual creators.",
     tags: ["Music", "Underground", "Artists"],
     members: 4,
     location: "Online",
@@ -18,8 +17,7 @@ const projects = [
     name: "AI Streetwear Brand",
     category: "Fashion / AI",
     lookingFor: "Designers, marketers, creators",
-    description:
-      "A futuristic streetwear brand powered by AI concepts, limited drops, and underground culture.",
+    description: "A futuristic streetwear brand powered by AI concepts.",
     tags: ["Fashion", "AI", "Brand"],
     members: 2,
     location: "Europe",
@@ -29,8 +27,7 @@ const projects = [
     name: "Cyber Indie Game",
     category: "Game Dev",
     lookingFor: "Developers, pixel artists, sound designers",
-    description:
-      "An indie game inspired by cyberpunk worlds, survival mechanics, and underground storytelling.",
+    description: "An indie game inspired by cyberpunk and underground culture.",
     tags: ["GameDev", "Art", "Coding"],
     members: 5,
     location: "Remote",
@@ -41,18 +38,24 @@ const projects = [
 export default function SwipePage() {
   const [index, setIndex] = useState(0);
   const [matches, setMatches] = useState<string[]>([]);
-  const [lastAction, setLastAction] = useState("");
+  const [showMatch, setShowMatch] = useState(false);
+  const [username, setUsername] = useState("Dr Mikhail");
+  const [skill, setSkill] = useState("Founder / Builder");
 
   const project = projects[index];
 
-  function nextProject(action: string) {
-    setLastAction(action);
+  function nextProject() {
     setIndex((prev) => (prev + 1) % projects.length);
   }
 
   function interested() {
     setMatches((prev) => [...prev, project.name]);
-    nextProject("Interested");
+    setShowMatch(true);
+  }
+
+  function closeMatch() {
+    setShowMatch(false);
+    nextProject();
   }
 
   return (
@@ -61,12 +64,11 @@ export default function SwipePage() {
         <a href="/" className="text-white/50 hover:text-white transition">
           ← Speark
         </a>
-
         <p className="text-white/40 text-sm">Speark Match Demo</p>
       </div>
 
       <section className="w-full max-w-xl">
-        <div className="mb-5">
+        <div className="mb-8">
           <p className="text-sm text-red-500 uppercase tracking-[0.25em]">
             Discover Projects
           </p>
@@ -76,6 +78,21 @@ export default function SwipePage() {
           <p className="mt-3 text-white/50">
             Find projects, artists, developers, and underground creators.
           </p>
+        </div>
+
+        <div className="mb-6 grid grid-cols-2 gap-3">
+          <input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-3 text-sm outline-none"
+            placeholder="Your name"
+          />
+          <input
+            value={skill}
+            onChange={(e) => setSkill(e.target.value)}
+            className="bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-3 text-sm outline-none"
+            placeholder="Your skill"
+          />
         </div>
 
         <div className="relative border border-white/10 bg-white/[0.03] rounded-[2rem] p-6 shadow-2xl overflow-hidden">
@@ -132,7 +149,7 @@ export default function SwipePage() {
 
             <div className="grid grid-cols-3 gap-3">
               <button
-                onClick={() => nextProject("Passed")}
+                onClick={nextProject}
                 className="py-4 rounded-2xl border border-white/10 text-white/60 hover:bg-white/5 transition"
               >
                 Pass
@@ -142,33 +159,36 @@ export default function SwipePage() {
                 onClick={interested}
                 className="py-4 rounded-2xl bg-red-600 hover:bg-red-500 transition font-medium col-span-2"
               >
-                Interested
+                Join Project
               </button>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-between text-sm text-white/40">
-          <p>Matches: {matches.length}</p>
-          <p>{lastAction && `Last: ${lastAction}`}</p>
+        <div className="mt-6 text-sm text-white/40 text-center">
+          Matches: {matches.length}
         </div>
-
-        {matches.length > 0 && (
-          <div className="mt-6 border border-white/10 rounded-3xl p-5 bg-white/[0.03]">
-            <p className="text-sm text-white/40 mb-3">Your matches</p>
-            <div className="space-y-2">
-              {matches.map((match, i) => (
-                <div
-                  key={`${match}-${i}`}
-                  className="rounded-2xl bg-white/[0.04] px-4 py-3 text-sm"
-                >
-                  {match}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </section>
+
+      {showMatch && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center px-6 z-50">
+          <div className="max-w-sm w-full rounded-[2rem] border border-red-500/30 bg-black p-8 text-center shadow-2xl shadow-red-600/20">
+            <div className="text-5xl mb-5">⚡</div>
+            <h2 className="text-3xl font-bold mb-3">Match request sent.</h2>
+            <p className="text-white/60 mb-6">
+              {username} wants to join{" "}
+              <span className="text-white">{project.name}</span> as{" "}
+              <span className="text-red-400">{skill}</span>.
+            </p>
+            <button
+              onClick={closeMatch}
+              className="w-full py-4 rounded-2xl bg-red-600 hover:bg-red-500 transition font-medium"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

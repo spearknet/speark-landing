@@ -65,7 +65,7 @@ export default function SwipePage() {
         <p className="text-white/40 text-sm">Speark Match Demo</p>
       </div>
 
-      <section className="w-full max-w-md">
+      <section className="w-full max-w-xl">
         <div className="mb-5">
           <p className="text-sm text-red-500 uppercase tracking-[0.25em]">
             Discover Projects
@@ -81,7 +81,7 @@ export default function SwipePage() {
         <div className="relative border border-white/10 bg-white/[0.03] rounded-[2rem] p-6 shadow-2xl overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,0,0,0.18),transparent_35%)]" />
 
-          <div className="relative h-64 rounded-3xl bg-gradient-to-br from-red-700/50 via-white/5 to-black border border-white/10 mb-6 flex items-center justify-center overflow-hidden">
+          <div className="relative h-52 rounded-3xl bg-gradient-to-br from-red-700/50 via-white/5 to-black border border-white/10 mb-6 flex items-center justify-center overflow-hidden">
             <div className="absolute w-40 h-40 bg-red-600/20 blur-3xl rounded-full" />
             <span className="relative text-6xl">⚡</span>
           </div>

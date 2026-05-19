@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
-  const projects = [
+const demoProjects = [
   {
     name: "Underground Music Collective",
     category: "Music / Artists",
@@ -13,120 +15,37 @@ import { useState } from "react";
     location: "Online",
     owner: "Nova",
   },
-  {
-    name: "AI Streetwear Brand",
-    category: "Fashion / AI",
-    lookingFor: "Designers, marketers, creators",
-    description: "A futuristic streetwear brand powered by AI concepts.",
-    tags: ["Fashion", "AI", "Brand"],
-    members: 2,
-    location: "Europe",
-    owner: "Kairo",
-  },
-  {
-    name: "Cyber Indie Game",
-    category: "Game Dev",
-    lookingFor: "Developers, pixel artists, sound designers",
-    description: "An indie game inspired by cyberpunk and underground culture.",
-    tags: ["GameDev", "Art", "Coding"],
-    members: 5,
-    location: "Remote",
-    owner: "PixelForge",
-  },
-  {
-    name: "Dark Visual Studio",
-    category: "Design / Branding",
-    lookingFor: "3D artists, motion designers, creative directors",
-    description: "A visual studio building dark futuristic identities for artists and startups.",
-    tags: ["Design", "3D", "Branding"],
-    members: 3,
-    location: "Online",
-    owner: "Vexel",
-  },
-  {
-    name: "Bedroom Producer Network",
-    category: "Music / Community",
-    lookingFor: "Beatmakers, singers, sound engineers",
-    description: "A network for underground producers to collaborate on tracks and releases.",
-    tags: ["Beats", "Music", "Collab"],
-    members: 7,
-    location: "Worldwide",
-    owner: "Echo",
-  },
-  {
-    name: "Indie Film Crew",
-    category: "Film / Creators",
-    lookingFor: "Editors, actors, camera operators",
-    description: "A small film crew creating short cinematic stories with unknown creators.",
-    tags: ["Film", "Video", "Story"],
-    members: 6,
-    location: "Poland",
-    owner: "Mira",
-  },
-  {
-    name: "AI Tool Directory",
-    category: "Startup / AI",
-    lookingFor: "Developers, researchers, marketers",
-    description: "A curated platform for useful AI tools, workflows, and creator resources.",
-    tags: ["AI", "SaaS", "Tools"],
-    members: 2,
-    location: "Remote",
-    owner: "Atlas",
-  },
-  {
-    name: "Street Photography Zine",
-    category: "Photography / Art",
-    lookingFor: "Photographers, writers, layout designers",
-    description: "An underground digital zine showcasing raw street photography and stories.",
-    tags: ["Photo", "Art", "Zine"],
-    members: 4,
-    location: "Europe",
-    owner: "Noir",
-  },
-  {
-    name: "Open Source Habit App",
-    category: "App / Open Source",
-    lookingFor: "Frontend devs, backend devs, UI designers",
-    description: "A minimal habit tracker for builders who want to stay consistent.",
-    tags: ["App", "OpenSource", "Product"],
-    members: 3,
-    location: "Online",
-    owner: "LenaCode",
-  },
-  {
-    name: "Cyber Tattoo Archive",
-    category: "Art / Culture",
-    lookingFor: "Tattoo artists, photographers, web designers",
-    description: "A visual archive of cyber, dark, and futuristic tattoo culture.",
-    tags: ["Tattoo", "Culture", "Visual"],
-    members: 2,
-    location: "Worldwide",
-    owner: "InkZero",
-  },
-  {
-    name: "Creator Launch Lab",
-    category: "Business / Creators",
-    lookingFor: "Founders, editors, content strategists",
-    description: "A small group helping creators launch products, brands, and communities.",
-    tags: ["Business", "Creators", "Launch"],
-    members: 5,
-    location: "Remote",
-    owner: "Kai",
-  },
-  {
-    name: "Experimental Audio-Visual Show",
-    category: "Music / Visuals",
-    lookingFor: "VJs, producers, stage designers",
-    description: "A live underground show mixing electronic music, visuals, and performance art.",
-    tags: ["Live", "Audio", "Visuals"],
-    members: 6,
-    location: "Berlin",
-    owner: "Rift",
-  },
 ];
+
+
 
 export default function SwipePage() {
   const [index, setIndex] = useState(0);
+  const [projects, setProjects] = useState<any[]>(demoProjects);
+  useEffect(() => {
+  async function loadProjects() {
+    const { data, error } = await supabase
+      .from("projects")
+      .select("*");
+
+    if (!error && data && data.length > 0) {
+      const formatted = data.map((p) => ({
+        name: p.title,
+        category: p.category,
+        lookingFor: p.looking_for,
+        description: p.description,
+        tags: p.tags || [],
+        members: Math.floor(Math.random() * 8) + 1,
+        location: "Online",
+        owner: "Builder",
+      }));
+
+      setProjects(formatted);
+    }
+  }
+
+  loadProjects();
+}, []);
   const [matches, setMatches] = useState<string[]>([]);
   const [showMatch, setShowMatch] = useState(false);
   const [username, setUsername] = useState("Dr Mikhail");
@@ -151,11 +70,19 @@ export default function SwipePage() {
   return (
     <main className="min-h-screen bg-black text-white px-6 py-10 flex flex-col items-center">
       <div className="w-full max-w-5xl flex items-center justify-between mb-10">
-        <a href="/" className="text-white/50 hover:text-white transition">
-          ← Speark
-        </a>
-        <p className="text-white/40 text-sm">Speark Match Demo</p>
-      </div>
+     <a href="/" className="text-white/50 hover:text-white transition">
+  ← Speark
+</a>
+
+<div className="flex items-center gap-5 text-sm">
+  <a href="/profile" className="text-white/50 hover:text-white transition">
+    Profile
+  </a>
+
+  <a href="/create-project" className="text-red-500 hover:text-red-400 transition">
+    + Add Project
+  </a>
+</div>
 
       <section className="w-full max-w-xl">
         <div className="mb-8">

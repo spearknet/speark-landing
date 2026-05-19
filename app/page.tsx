@@ -29,6 +29,7 @@ export default function SpearkLanding() {
           Speark is a social network for creators, developers, artists,
           entrepreneurs, and builders.
         </p>
+<div className="mt-12 flex flex-col sm:flex-row gap-4">
 
   <a
     href="https://discord.gg/wcp88puzs"
@@ -48,7 +49,7 @@ export default function SpearkLanding() {
 
   <a
     href="/swipe"
-    className="px-8 py-4 bg-red-600 hover:bg-red-500 rounded-2xl font-medium transition"
+    className="px-8 py-4 bg-red-600 hover:bg-red-500 rounded-2xl text-white font-medium rounded-2xl transition"
   >
     Try Speark Match
   </a>

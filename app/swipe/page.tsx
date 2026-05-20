@@ -23,10 +23,14 @@ export default function SwipePage() {
   const project = projects[index];
 
   function nextProject() {
-    if (index < projects.length - 1) {
-      setIndex(index + 1);
-    }
+    if (index < projects.length - 1) setIndex(index + 1);
   }
+
+  const tags = Array.isArray(project?.tags)
+    ? project.tags
+    : typeof project?.tags === "string"
+    ? project.tags.split(",")
+    : [];
 
   if (!project) {
     return (
@@ -42,50 +46,29 @@ export default function SwipePage() {
         <div className="border border-white/10 rounded-[2.5rem] overflow-hidden bg-white/[0.02]">
           <div className="h-[320px] bg-gradient-to-br from-red-900/40 to-black flex items-center justify-center">
             {project.image_url ? (
-              <img
-                src={project.image_url}
-                className="w-full h-full object-cover"
-              />
+              <img src={project.image_url} className="w-full h-full object-cover" />
             ) : (
               <div className="text-7xl">⚡</div>
             )}
           </div>
 
           <div className="p-8">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-red-400 text-sm uppercase tracking-[0.2em]">
-                Project
-              </p>
+            <p className="text-red-400 text-sm uppercase tracking-[0.2em] mb-4">
+              {project.category || "Project"}
+            </p>
 
-              <div className="px-4 py-2 rounded-full bg-white/10 text-sm">
-                Active
-              </div>
-            </div>
-
-            <h1 className="text-5xl font-bold mb-5">
-              {project.title}
-            </h1>
+            <h1 className="text-5xl font-bold mb-5">{project.title}</h1>
 
             <p className="text-white/70 text-lg leading-relaxed mb-8">
               {project.description}
             </p>
 
-            <div className="mb-8">
-              <p className="text-white/40 mb-2">
-                Looking for
-              </p>
-
-              <p className="text-xl">
-                {project.looking_for}
-              </p>
-            </div>
+            <p className="text-white/40 mb-2">Looking for</p>
+            <p className="text-xl mb-8">{project.looking_for}</p>
 
             <div className="flex flex-wrap gap-3 mb-10">
-              {project.tags?.split(",").map((tag: string) => (
-                <div
-                  key={tag}
-                  className="px-4 py-2 rounded-full bg-white/10 text-sm"
-                >
+              {tags.map((tag: string) => (
+                <div key={tag} className="px-4 py-2 rounded-full bg-white/10 text-sm">
                   {tag.trim()}
                 </div>
               ))}

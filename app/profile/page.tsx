@@ -4,74 +4,59 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 export default function ProfilePage() {
-  const [name, setName] = useState("");
-  const [role, setRole] = useState("");
+  const [username, setUsername] = useState("");
+  const [skill, setSkill] = useState("");
   const [bio, setBio] = useState("");
-  const [saved, setSaved] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
+    async function loadProfile() {
+      const { data: userData } = await supabase.auth.getUser();
+
+      if (!userData.user) {
+        setMessage("Please log in first.");
+        return;
+      }
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userData.user.id)
+        .single();
+
+      if (data) {
+        setUsername(data.username || "");
+        setSkill(data.skill || "");
+        setBio(data.bio || "");
+      }
+    }
+
     loadProfile();
   }, []);
 
-  async function loadProfile() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) return;
-
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
-    if (data) {
-setName(data.username || "");
-setRole(data.skill || "");
-      setBio(data.bio || "");
-    }
-  }
-
   async function saveProfile() {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    const { data: userData } = await supabase.auth.getUser();
 
-  if (!user) {
-    alert("Please log in first.");
-    return;
-  }
+    if (!userData.user) {
+      setMessage("Please log in first.");
+      return;
+    }
 
-  const { error } = await supabase.from("profiles").upsert({
-    id: user.id,
-    username: name,
-    skill: role,
-    bio,
-  });
+    const { error } = await supabase.from("profiles").upsert({
+      id: userData.user.id,
+      username,
+      skill,
+      bio,
+    });
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
-
-  alert("Profile saved.");
-}
-
-    setSaved(true);
-
-    setTimeout(() => {
-      setSaved(false);
-    }, 2000);
+    if (error) setMessage(error.message);
+    else setMessage("Profile saved.");
   }
 
   return (
     <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
       <div className="w-full max-w-3xl border border-white/10 rounded-[2rem] p-10 bg-white/[0.02]">
-        <a
-          href="/swipe"
-          className="text-white/50 hover:text-white transition"
-        >
+        <a href="/swipe" className="text-white/50 hover:text-white transition">
           ← Back to Speark Match
         </a>
 
@@ -85,15 +70,15 @@ setRole(data.skill || "");
 
         <div className="mt-12 flex flex-col gap-6">
           <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             placeholder="Name"
             className="bg-white/[0.03] border border-white/10 rounded-3xl px-6 py-6 text-2xl outline-none"
           />
 
           <input
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
+            value={skill}
+            onChange={(e) => setSkill(e.target.value)}
             placeholder="Skill / role"
             className="bg-white/[0.03] border border-white/10 rounded-3xl px-6 py-6 text-2xl outline-none"
           />
@@ -113,9 +98,9 @@ setRole(data.skill || "");
             Save profile
           </button>
 
-          {saved && (
-            <p className="text-green-400 text-center">
-              Profile saved successfully.
+          {message && (
+            <p className="text-white/50 text-center">
+              {message}
             </p>
           )}
         </div>

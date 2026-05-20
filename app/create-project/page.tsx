@@ -15,29 +15,30 @@ export default function CreateProjectPage() {
     const { data: userData } = await supabase.auth.getUser();
 
     if (!userData.user) {
-      setMessage("Please log in first.");
+      window.location.href = "/login";
       return;
     }
 
-    const { data } = await supabase.auth.getUser();
+    const { error } = await supabase.from("projects").insert({
+      title,
+      category,
+      description,
+      looking_for: lookingFor,
+      tags: tags.split(",").map((tag) => tag.trim()),
+      owner_id: userData.user.id,
+    });
 
-await supabase.from("projects").insert({
-  title,
-  description,
-  category,
-  looking_for: lookingFor,
-  owner_id: data.user.id,
-});
-
-    if (error) setMessage(error.message);
-    else {
-      setMessage("Project created.");
-      setTitle("");
-      setCategory("");
-      setDescription("");
-      setLookingFor("");
-      setTags("");
+    if (error) {
+      setMessage(error.message);
+      return;
     }
+
+    setMessage("Project created.");
+    setTitle("");
+    setCategory("");
+    setDescription("");
+    setLookingFor("");
+    setTags("");
   }
 
   return (
@@ -53,13 +54,45 @@ await supabase.from("projects").insert({
         </p>
 
         <div className="space-y-4">
-          <input className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-4 outline-none" placeholder="Project title" value={title} onChange={(e) => setTitle(e.target.value)} />
-          <input className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-4 outline-none" placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} />
-          <textarea className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-4 outline-none min-h-32" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-          <input className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-4 outline-none" placeholder="Looking for" value={lookingFor} onChange={(e) => setLookingFor(e.target.value)} />
-          <input className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-4 outline-none" placeholder="Tags separated by comma" value={tags} onChange={(e) => setTags(e.target.value)} />
+          <input
+            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-4 outline-none"
+            placeholder="Project title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
 
-          <button onClick={createProject} className="w-full py-4 rounded-2xl bg-red-600 hover:bg-red-500 transition font-medium">
+          <input
+            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-4 outline-none"
+            placeholder="Category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          />
+
+          <textarea
+            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-4 outline-none min-h-32"
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+
+          <input
+            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-4 outline-none"
+            placeholder="Looking for"
+            value={lookingFor}
+            onChange={(e) => setLookingFor(e.target.value)}
+          />
+
+          <input
+            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-4 outline-none"
+            placeholder="Tags separated by comma"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+          />
+
+          <button
+            onClick={createProject}
+            className="w-full py-4 rounded-2xl bg-red-600 hover:bg-red-500 transition font-medium"
+          >
             Create project
           </button>
         </div>

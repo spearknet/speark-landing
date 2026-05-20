@@ -27,25 +27,36 @@ export default function ProfilePage() {
       .single();
 
     if (data) {
-      setName(data.name || "");
-      setRole(data.role || "");
+setName(data.username || "");
+setRole(data.skill || "");
       setBio(data.bio || "");
     }
   }
 
   async function saveProfile() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    if (!user) return;
+  if (!user) {
+    alert("Please log in first.");
+    return;
+  }
 
-    await supabase.from("profiles").upsert({
-      id: user.id,
-      name,
-      role,
-      bio,
-    });
+  const { error } = await supabase.from("profiles").upsert({
+    id: user.id,
+    username: name,
+    skill: role,
+    bio,
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Profile saved.");
+}
 
     setSaved(true);
 

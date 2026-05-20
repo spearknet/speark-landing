@@ -33,7 +33,13 @@ export default function SwipePage() {
       const { data: userData } = await supabase.auth.getUser();
       if (userData.user) setUser(userData.user);
 
-      const { data, error } = await supabase.from("projects").select("*");
+      const { data, error } = await supabase.from("projects").select(`
+  *,
+  profiles (
+    username,
+    skill
+  )
+`);
 
       if (!error && data && data.length > 0) {
         const formatted = data.map((p) => ({
@@ -45,7 +51,8 @@ export default function SwipePage() {
           tags: p.tags || [],
           members: Math.floor(Math.random() * 8) + 1,
           location: "Online",
-          owner: "Builder",
+          owner: p.profiles?.username || "Unknown",
+		  skill: p.profiles?.skill || "Builder",
         }));
 
         setProjects(formatted);

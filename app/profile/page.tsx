@@ -47,6 +47,14 @@ export default function ProfilePage() {
       username,
       skill,
       bio,
+	  const { data } = await supabase.auth.getUser();
+
+await supabase.from("profiles").upsert({
+  id: data.user.id,
+  username,
+  bio,
+  skills: [skill],
+});
     });
 
     if (error) setMessage(error.message);

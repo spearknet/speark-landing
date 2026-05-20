@@ -19,14 +19,15 @@ export default function CreateProjectPage() {
       return;
     }
 
-    const { error } = await supabase.from("projects").insert({
-      owner: userData.user.id,
-      title,
-      category,
-      description,
-      looking_for: lookingFor,
-      tags: tags.split(",").map((tag) => tag.trim()),
-    });
+    const { data } = await supabase.auth.getUser();
+
+await supabase.from("projects").insert({
+  title,
+  description,
+  category,
+  looking_for: lookingFor,
+  owner_id: data.user.id,
+});
 
     if (error) setMessage(error.message);
     else {

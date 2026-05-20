@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 export default function SwipePage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [index, setIndex] = useState(0);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     async function loadProjects() {
@@ -23,14 +24,38 @@ export default function SwipePage() {
   const project = projects[index];
 
   function nextProject() {
-    if (index < projects.length - 1) setIndex(index + 1);
+    setMessage("");
+
+    if (index < projects.length - 1) {
+      setIndex(index + 1);
+    } else {
+      setIndex(projects.length);
+    }
   }
 
-  const tags = Array.isArray(project?.tags)
-    ? project.tags
-    : typeof project?.tags === "string"
-    ? project.tags.split(",")
-    : [];
+  async function joinProject() {
+    const { data: userData } = await supabase.auth.getUser();
+
+    if (!userData.user) {
+      window.location.href = "/login";
+      return;
+    }
+
+    const { error } = await supabase.from("project_requests").insert({
+      user_id: userData.user.id,
+      project_id: project.id,
+    });
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setMessage("Request sent.");
+    setTimeout(() => {
+      nextProject();
+    }, 900);
+  }
 
   if (!project) {
     return (
@@ -40,13 +65,23 @@ export default function SwipePage() {
     );
   }
 
+  const tags = Array.isArray(project.tags)
+    ? project.tags
+    : typeof project.tags === "string"
+    ? project.tags.split(",")
+    : [];
+
   return (
     <main className="min-h-screen bg-black text-white px-6 py-16">
       <div className="max-w-2xl mx-auto">
         <div className="border border-white/10 rounded-[2.5rem] overflow-hidden bg-white/[0.02]">
           <div className="h-[320px] bg-gradient-to-br from-red-900/40 to-black flex items-center justify-center">
             {project.image_url ? (
-              <img src={project.image_url} className="w-full h-full object-cover" />
+              <img
+                src={project.image_url}
+                className="w-full h-full object-cover"
+                alt={project.title}
+              />
             ) : (
               <div className="text-7xl">⚡</div>
             )}
@@ -68,7 +103,10 @@ export default function SwipePage() {
 
             <div className="flex flex-wrap gap-3 mb-10">
               {tags.map((tag: string) => (
-                <div key={tag} className="px-4 py-2 rounded-full bg-white/10 text-sm">
+                <div
+                  key={tag}
+                  className="px-4 py-2 rounded-full bg-white/10 text-sm"
+                >
                   {tag.trim()}
                 </div>
               ))}
@@ -83,12 +121,16 @@ export default function SwipePage() {
               </button>
 
               <button
-                onClick={nextProject}
+                onClick={joinProject}
                 className="h-16 rounded-2xl bg-red-500 hover:bg-red-600 transition font-medium"
               >
                 Join Project
               </button>
             </div>
+
+            {message && (
+              <p className="mt-5 text-center text-white/50">{message}</p>
+            )}
           </div>
         </div>
 

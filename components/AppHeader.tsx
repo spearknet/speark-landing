@@ -63,16 +63,21 @@ export default function AppHeader() {
 
           {results.length > 0 && (
             <div className="absolute top-14 left-0 right-0 bg-black border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-              {results.map((user) => (
-                <a
-                  key={user.id}
-                  href={`/u/${user.username}`}
-                  className="block px-4 py-3 hover:bg-white/[0.06]"
-                >
-                  <p className="font-medium">{user.username}</p>
-                  <p className="text-sm text-white/40">{user.skill}</p>
-                </a>
-              ))}
+              {results.map((user: any) => (
+  <a
+    key={user.id}
+    href={`/u/${user.username}`}
+    className="block border border-white/10 rounded-3xl p-6 hover:bg-white/5 transition"
+  >
+    <p className="text-3xl font-bold">
+      {user.username}
+    </p>
+
+    <p className="text-white/40 mt-2">
+      {user.skill}
+    </p>
+  </a>
+))}
             </div>
           )}
         </div>

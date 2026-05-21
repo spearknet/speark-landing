@@ -110,7 +110,7 @@ export default function HomePage() {
               Join a community of builders.
             </p>
             <a
-              href="https://discord.gg/TWOJ-LINK"
+              href="https://discord.gg/8B8rjHv8vE"
               target="_blank"
               className="inline-block px-6 py-3 rounded-2xl bg-white text-black font-medium"
             >

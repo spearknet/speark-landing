@@ -46,7 +46,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-black text-white px-6 py-10">
       <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-10 max-w-7xl mx-auto">
         <aside className="space-y-4">
-          <div className="text-xl font-bold tracking-wide mb-8">SPEARK</div>
+          <div className="text-xl font-bold tracking-wide mb-8">Projects:</div>
 
           {groups.map((group) => (
             <button
@@ -94,7 +94,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between mb-16">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-3">
-                Speark Push Your Project.
+                Push Your Project.
               </h1>
               <p className="text-white/50 text-lg">
                 A social network for creators, developers, artists,

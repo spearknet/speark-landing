@@ -53,9 +53,17 @@ export default function AppHeader() {
         {/* LEFT */}
         <Link
           href="/"
-          className="text-4xl font-bold tracking-tight text-white hover:opacity-80 transition"
+          className="flex items-center gap-4 hover:opacity-80 transition"
         >
-          Speark
+          <img
+            src="/logo.png"
+            alt="Speark"
+            className="w-12 h-12 object-contain"
+          />
+
+          <span className="text-4xl font-bold tracking-tight text-white">
+            Speark
+          </span>
         </Link>
 
         {/* CENTER */}

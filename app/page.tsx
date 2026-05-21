@@ -1,156 +1,162 @@
-export default function SpearkLanding() {
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+
+const groups = [
+  "All Projects",
+  "Creators Projects",
+  "Developers Projects",
+  "Artists Projects",
+  "Entrepreneurs Projects",
+  "Builders Projects",
+  "Other Projects",
+];
+
+export default function HomePage() {
+  const [projects, setProjects] = useState<any[]>([]);
+  const [activeGroup, setActiveGroup] = useState("All Projects");
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    async function loadProjects() {
+      const { data } = await supabase
+        .from("projects")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      setProjects(data || []);
+    }
+
+    loadProjects();
+  }, []);
+
+  const filteredProjects = projects.filter((project) => {
+    const matchesGroup =
+      activeGroup === "All Projects" || project.category === activeGroup;
+
+    const matchesSearch =
+      project.title?.toLowerCase().includes(search.toLowerCase()) ||
+      project.description?.toLowerCase().includes(search.toLowerCase());
+
+    return matchesGroup && matchesSearch;
+  });
+
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden">
-      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,rgba(255,0,0,0.25),transparent_35%)]" />
+    <main className="min-h-screen bg-black text-white px-6 py-10">
+      <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-10 max-w-7xl mx-auto">
+        <aside className="space-y-4">
+          <div className="text-xl font-bold tracking-wide mb-8">SPEARK</div>
 
-      <header className="relative z-10 flex items-center justify-between px-8 py-6 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Speark Logo" className="w-8 h-8 object-contain" />
-          <span className="text-xl font-semibold tracking-wide">Speark</span>
-        </div>
+          {groups.map((group) => (
+            <button
+              key={group}
+              onClick={() => setActiveGroup(group)}
+              className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl border transition ${
+                activeGroup === group
+                  ? "border-red-500/40 bg-red-500/10"
+                  : "border-white/10 bg-white/[0.02] hover:bg-white/[0.05]"
+              }`}
+            >
+              <span className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+                ▲
+              </span>
+              <span className="text-sm font-medium text-left">{group}</span>
+            </button>
+          ))}
 
-        <div className="flex items-center gap-5 text-sm text-white/70">
-          <a href="#vision" className="hover:text-white transition">Vision</a>
-          <a href="#community" className="hover:text-white transition">Community</a>
-          <a href="#join" className="hover:text-white transition">Join</a>
-        </div>
-      </header>
-
-      <main className="relative z-10 flex flex-col items-center justify-center px-6 text-center pt-32 pb-24">
-        <div className="mb-8 flex items-center justify-center">
-          <img src="/logo.png" alt="Speark Logo" className="w-28 h-28 object-contain" />
-        </div>
-
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight max-w-5xl leading-tight">
-          Build projects <br /> together.
-        </h1>
-
-        <p className="mt-8 text-lg md:text-xl text-white/60 max-w-2xl leading-relaxed">
-          Speark is a social network for creators, developers, artists,
-          entrepreneurs, and builders.
-        </p>
-<div className="mt-12 flex flex-col sm:flex-row gap-4">
-
-  <a
-    href="https://discord.gg/wcp88puzs"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="px-8 py-4 bg-white text-black rounded-2xl font-medium hover:scale-105 transition"
-  >
-    Join Community
-  </a>
-
-  <a
-    href="#vision"
-    className="px-8 py-4 border border-white/20 rounded-2xl text-white/80 hover:bg-white/5 transition"
-  >
-    Learn More
-  </a>
-
-  <a
-    href="/swipe"
-    className="px-8 py-4 bg-red-600 hover:bg-red-500 rounded-2xl text-white font-medium rounded-2xl transition"
-  >
-    Try Speark Match
-  </a>
-
-</div>
-      </main>
-
-      <section
-        id="vision"
-        className="relative z-10 grid md:grid-cols-3 gap-6 px-6 md:px-12 pb-24"
-      >
-        {[
-          {
-            title: "Connect",
-            text: "Meet creators, developers, artists, and ambitious people from around the world.",
-          },
-          {
-            title: "Collaborate",
-            text: "Find teammates, share ideas, and build real projects together.",
-          },
-          {
-            title: "Grow",
-            text: "Show your skills, gain experience, and become part of the next generation of builders.",
-          },
-        ].map((item) => (
-          <div
-            key={item.title}
-            className="bg-white/[0.03] border border-white/10 rounded-3xl p-8 backdrop-blur-sm"
-          >
-            <h2 className="text-2xl font-semibold mb-4">{item.title}</h2>
-            <p className="text-white/60 leading-relaxed">{item.text}</p>
+          <div className="pt-8">
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search..."
+              className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 outline-none"
+            />
           </div>
-        ))}
-      </section>
 
-      <section id="community" className="relative z-10 px-6 md:px-12 pb-24">
-        <div className="bg-white/[0.03] border border-white/10 rounded-[2rem] p-10 text-center">
-          <p className="text-sm uppercase tracking-[0.25em] text-white/40 mb-4">
-            Community Driven
-          </p>
-
-          <h2 className="text-4xl md:text-5xl font-bold leading-tight max-w-4xl mx-auto">
-            A place where ideas become real projects.
-          </h2>
-
-          <p className="mt-6 text-white/60 max-w-2xl mx-auto leading-relaxed">
-            Speark is focused on collaboration, creativity, and meaningful
-            connections between people who want to build something together.
-          </p>
-        </div>
-      </section>
-
-      <section id="join" className="relative z-10 px-6 md:px-12 pb-32">
-        <div className="border border-white/10 rounded-[2rem] p-10 text-center bg-gradient-to-b from-white/[0.04] to-transparent">
-          <h2 className="text-4xl md:text-5xl font-bold">
-            Starting from zero.
-          </h2>
-
-          <p className="mt-5 text-white/60 text-lg">
-            Join the early Speark community.
-          </p>
-
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          <div className="mt-20 border border-white/10 rounded-3xl p-6 bg-white/[0.03]">
+            <div className="w-12 h-12 rounded-xl bg-red-500/20 mb-5" />
+            <h3 className="text-xl font-bold mb-2">For Members</h3>
+            <p className="text-white/50 mb-6">
+              Join a community of builders.
+            </p>
             <a
-              href="https://discord.gg/wcp88puzs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full px-6 py-4 bg-red-600 rounded-2xl hover:bg-red-500 transition font-medium text-center"
+              href="/login"
+              className="inline-block px-6 py-3 rounded-2xl bg-white text-black font-medium"
             >
-              Discord
-            </a>
-
-            <a
-              href="https://x.com/spearknet"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full px-6 py-4 border border-white/10 rounded-2xl text-white/70 hover:bg-white/5 transition text-center"
-            >
-              X
-            </a>
-
-            <a
-              href="https://instagram.com/mikhail.kalin.speark"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full px-6 py-4 border border-white/10 rounded-2xl text-white/70 hover:bg-white/5 transition text-center"
-            >
-              Instagram
-            </a>
-
-            <a
-              href="https://tiktok.com/@spearknet"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full px-6 py-4 border border-white/10 rounded-2xl text-white/70 hover:bg-white/5 transition text-center"
-            >
-              TikTok
+              Join
             </a>
           </div>
-        </div>
-      </section>
-    </div>
+        </aside>
+
+        <section>
+          <div className="flex items-center justify-between mb-16">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-3">
+                Speark Push Your Project.
+              </h1>
+              <p className="text-white/50 text-lg">
+                A social network for creators, developers, artists,
+                entrepreneurs, and builders.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <a
+                href="/create-project"
+                className="px-6 py-4 rounded-2xl border border-red-500 text-red-400 hover:bg-red-500/10"
+              >
+                Add Project
+              </a>
+              <a
+                href="/swipe"
+                className="px-6 py-4 rounded-2xl bg-white/10 hover:bg-white/15"
+              >
+                Match
+              </a>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredProjects.map((project) => (
+              <a
+                key={project.id}
+                href="/swipe"
+                className="group block"
+              >
+                <div className="h-56 rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10">
+                  {project.image_url ? (
+                    <img
+                      src={project.image_url}
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-5xl">
+                      ⚡
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-between items-start mt-4">
+                  <div>
+                    <h2 className="text-xl font-bold">{project.title}</h2>
+                    <p className="text-white/40 text-sm mt-1">
+                      {project.category}
+                    </p>
+                  </div>
+
+                  <span className="text-2xl text-white/60">↗</span>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          {filteredProjects.length === 0 && (
+            <p className="text-white/40 mt-20">No projects found.</p>
+          )}
+        </section>
+      </div>
+    </main>
   );
 }

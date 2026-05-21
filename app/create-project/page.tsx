@@ -3,9 +3,18 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
+const groups = [
+  "Creators Projects",
+  "Developers Projects",
+  "Artists Projects",
+  "Entrepreneurs Projects",
+  "Builders Projects",
+  "Other Projects",
+];
+
 export default function CreateProjectPage() {
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState("Creators Projects");
   const [description, setDescription] = useState("");
   const [lookingFor, setLookingFor] = useState("");
   const [tags, setTags] = useState("");
@@ -60,22 +69,15 @@ export default function CreateProjectPage() {
       return;
     }
 
-    setMessage("Project created.");
-    setTitle("");
-    setCategory("");
-    setDescription("");
-    setLookingFor("");
-    setTags("");
-    setImageUrl("");
+    window.location.href = "/";
   }
 
   return (
     <main className="min-h-screen bg-black text-white px-6 py-16">
       <div className="max-w-2xl mx-auto border border-white/10 rounded-[2rem] p-8 bg-white/[0.02]">
-        <h1 className="text-5xl font-bold mb-3">Create project</h1>
-
+        <h1 className="text-5xl font-bold mb-3">Add Project</h1>
         <p className="text-white/50 mb-10">
-          Add your project to Speark.
+          Add your project and choose where it should appear.
         </p>
 
         <div className="space-y-5">
@@ -110,12 +112,17 @@ export default function CreateProjectPage() {
             className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none"
           />
 
-          <input
+          <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            placeholder="Category"
-            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none"
-          />
+            className="w-full bg-black border border-white/10 rounded-2xl px-5 py-4 outline-none"
+          >
+            {groups.map((group) => (
+              <option key={group} value={group}>
+                {group}
+              </option>
+            ))}
+          </select>
 
           <textarea
             value={description}
@@ -142,7 +149,7 @@ export default function CreateProjectPage() {
             onClick={createProject}
             className="w-full py-5 rounded-2xl bg-red-600 hover:bg-red-500 transition font-medium"
           >
-            Create project
+            Add Project
           </button>
 
           {message && <p className="text-white/50">{message}</p>}

@@ -6,16 +6,47 @@ import { supabase } from "@/lib/supabase";
 export default function SwipePage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [index, setIndex] = useState(0);
+  const [sparkCounts, setSparkCounts] = useState<Record<number, number>>({});
+  const [sparked, setSparked] = useState<Record<number, boolean>>({});
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     async function loadProjects() {
-      const { data } = await supabase
+      const { data: projectsData } = await supabase
         .from("projects")
         .select("*")
         .order("created_at", { ascending: false });
 
-      setProjects(data || []);
+      setProjects(projectsData || []);
+
+      const { data: sparksData } = await supabase
+        .from("project_sparks")
+        .select("project_id");
+
+      const counts: Record<number, number> = {};
+
+      sparksData?.forEach((spark) => {
+        counts[spark.project_id] = (counts[spark.project_id] || 0) + 1;
+      });
+
+      setSparkCounts(counts);
+
+      const { data: userData } = await supabase.auth.getUser();
+
+      if (userData.user) {
+        const { data: mySparks } = await supabase
+          .from("project_sparks")
+          .select("project_id")
+          .eq("user_id", userData.user.id);
+
+        const mine: Record<number, boolean> = {};
+
+        mySparks?.forEach((spark) => {
+          mine[spark.project_id] = true;
+        });
+
+        setSparked(mine);
+      }
     }
 
     loadProjects();
@@ -31,6 +62,60 @@ export default function SwipePage() {
     } else {
       setIndex(projects.length);
     }
+  }
+
+  async function sparkProject() {
+    const { data: userData } = await supabase.auth.getUser();
+
+    if (!userData.user) {
+      window.location.href = "/login";
+      return;
+    }
+
+    if (sparked[project.id]) {
+      const { error } = await supabase
+        .from("project_sparks")
+        .delete()
+        .eq("user_id", userData.user.id)
+        .eq("project_id", project.id);
+
+      if (error) {
+        setMessage(error.message);
+        return;
+      }
+
+      setSparked((prev) => ({
+        ...prev,
+        [project.id]: false,
+      }));
+
+      setSparkCounts((prev) => ({
+        ...prev,
+        [project.id]: Math.max((prev[project.id] || 1) - 1, 0),
+      }));
+
+      return;
+    }
+
+    const { error } = await supabase.from("project_sparks").insert({
+      user_id: userData.user.id,
+      project_id: project.id,
+    });
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setSparked((prev) => ({
+      ...prev,
+      [project.id]: true,
+    }));
+
+    setSparkCounts((prev) => ({
+      ...prev,
+      [project.id]: (prev[project.id] || 0) + 1,
+    }));
   }
 
   async function joinProject() {
@@ -88,9 +173,15 @@ export default function SwipePage() {
           </div>
 
           <div className="p-8">
-            <p className="text-red-400 text-sm uppercase tracking-[0.2em] mb-4">
-              {project.category || "Project"}
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-red-400 text-sm uppercase tracking-[0.2em]">
+                {project.category || "Project"}
+              </p>
+
+              <p className="text-white/40 text-sm">
+                {sparkCounts[project.id] || 0} Sparks
+              </p>
+            </div>
 
             <h1 className="text-5xl font-bold mb-5">{project.title}</h1>
 
@@ -112,7 +203,7 @@ export default function SwipePage() {
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <button
                 onClick={nextProject}
                 className="h-16 rounded-2xl border border-white/10 hover:bg-white/5 transition"
@@ -121,10 +212,21 @@ export default function SwipePage() {
               </button>
 
               <button
+                onClick={sparkProject}
+                className={`h-16 rounded-2xl transition font-medium ${
+                  sparked[project.id]
+                    ? "bg-white text-black"
+                    : "border border-red-500/40 text-red-400 hover:bg-red-500/10"
+                }`}
+              >
+                ⚡ Spark
+              </button>
+
+              <button
                 onClick={joinProject}
                 className="h-16 rounded-2xl bg-red-500 hover:bg-red-600 transition font-medium"
               >
-                Join Project
+                Join
               </button>
             </div>
 

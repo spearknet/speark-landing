@@ -39,9 +39,13 @@ export default function MyProfilePage() {
     loadProfile();
   }, []);
 
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  }
+
   async function deleteProject(projectId: number) {
     const confirmDelete = window.confirm("Delete this project?");
-
     if (!confirmDelete) return;
 
     await supabase
@@ -64,7 +68,14 @@ export default function MyProfilePage() {
   return (
     <main className="min-h-screen bg-black text-white px-6 py-14">
       <div className="max-w-5xl mx-auto border border-white/10 rounded-[2rem] p-10 bg-white/[0.02]">
-        <div className="flex justify-end mb-8">
+        <div className="flex justify-end gap-3 mb-8">
+          <button
+            onClick={logout}
+            className="px-5 py-3 rounded-2xl border border-white/10 text-white/60 hover:bg-white/5 transition"
+          >
+            Log out
+          </button>
+
           <a
             href="/profile/edit"
             className="px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-500 transition"
@@ -99,7 +110,7 @@ export default function MyProfilePage() {
         <div className="flex flex-wrap gap-3 mb-14">
           {profile.website && (
             <a
-              href={`https://${profile.website}`}
+              href={`https://${profile.website.replace(/^https?:\/\//, "")}`}
               target="_blank"
               className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5"
             >
@@ -109,7 +120,7 @@ export default function MyProfilePage() {
 
           {profile.instagram && (
             <a
-              href={`https://instagram.com/${profile.instagram}`}
+              href={`https://instagram.com/${profile.instagram.replace("@", "")}`}
               target="_blank"
               className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5"
             >
@@ -119,7 +130,7 @@ export default function MyProfilePage() {
 
           {profile.x && (
             <a
-              href={`https://x.com/${profile.x}`}
+              href={`https://x.com/${profile.x.replace("@", "")}`}
               target="_blank"
               className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5"
             >
@@ -129,7 +140,7 @@ export default function MyProfilePage() {
 
           {profile.github && (
             <a
-              href={`https://github.com/${profile.github}`}
+              href={`https://github.com/${profile.github.replace("@", "")}`}
               target="_blank"
               className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5"
             >
@@ -146,10 +157,10 @@ export default function MyProfilePage() {
               key={project.id}
               className="border border-white/10 rounded-[2rem] p-6 flex items-center justify-between gap-6"
             >
-              <div>
+              <a href={`/project/${project.id}`} className="block flex-1">
                 <h3 className="text-2xl font-bold mb-3">{project.title}</h3>
                 <p className="text-white/60">{project.description}</p>
-              </div>
+              </a>
 
               <button
                 onClick={() => deleteProject(project.id)}

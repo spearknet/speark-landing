@@ -1,28 +1,28 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 export default function AppHeader() {
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
+  const [avatar, setAvatar] = useState("");
 
   useEffect(() => {
     async function loadUser() {
       const { data } = await supabase.auth.getUser();
 
-      if (data.user) {
-        setUser(data.user);
+      if (!data.user) return;
 
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", data.user.id)
-          .single();
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", data.user.id)
+        .single();
 
-        setProfile(profileData);
+      if (profile?.avatar_url) {
+        setAvatar(profile.avatar_url);
       }
     }
 
@@ -30,9 +30,9 @@ export default function AppHeader() {
   }, []);
 
   async function searchUsers(value: string) {
-    setSearch(value);
+    setQuery(value);
 
-    if (value.length < 2) {
+    if (!value) {
       setResults([]);
       return;
     }
@@ -47,58 +47,68 @@ export default function AppHeader() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
-      <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-center gap-8">
-        <div className="relative w-full max-w-xl">
+    <header className="w-full border-b border-white/10 bg-black sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto h-24 px-6 flex items-center justify-between gap-8">
+
+        {/* LEFT */}
+        <Link
+          href="/"
+          className="text-4xl font-bold tracking-tight text-white hover:opacity-80 transition"
+        >
+          Speark
+        </Link>
+
+        {/* CENTER */}
+        <div className="relative flex-1 max-w-2xl">
           <input
-            value={search}
+            value={query}
             onChange={(e) => searchUsers(e.target.value)}
             placeholder="Search users..."
-            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none text-sm"
+            className="w-full h-16 bg-transparent border border-white/10 rounded-3xl px-6 text-white outline-none text-lg"
           />
 
           {results.length > 0 && (
-            <div className="absolute top-16 left-0 right-0 bg-black border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-              {results.map((user: any) => (
-                <a
+            <div className="absolute top-20 left-0 w-full bg-black border border-white/10 rounded-3xl overflow-hidden z-50">
+              {results.map((user) => (
+                <Link
                   key={user.id}
                   href={`/u/${user.username}`}
-                  className="block px-5 py-4 hover:bg-white/[0.06]"
+                  className="block px-6 py-5 hover:bg-white/5 transition border-b border-white/5 last:border-none"
                 >
-                  <p className="font-medium">{user.username}</p>
-                  <p className="text-sm text-white/40">{user.skill}</p>
-                </a>
+                  <div className="text-white text-2xl font-semibold">
+                    {user.username}
+                  </div>
+
+                  <div className="text-white/40 text-lg mt-1">
+                    {user.skill}
+                  </div>
+                </Link>
               ))}
             </div>
           )}
         </div>
 
-        {user ? (
-          <a href="/profile" className="flex items-center gap-3">
-            <span className="hidden sm:block text-white/60">My Profile</span>
+        {/* RIGHT */}
+        <Link
+          href="/profile"
+          className="flex items-center gap-4 hover:opacity-80 transition"
+        >
+          <span className="text-2xl text-white">My Profile</span>
 
-            <div className="w-11 h-11 rounded-full bg-white/10 overflow-hidden border border-white/10">
-              {profile?.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt="avatar"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-sm">
-                  {profile?.username?.[0] || "S"}
-                </div>
-              )}
-            </div>
-          </a>
-        ) : (
-          <a
-            href="/login"
-            className="px-5 py-3 rounded-2xl bg-white text-black font-medium"
-          >
-            Login
-          </a>
-        )}
+          <div className="w-16 h-16 rounded-full overflow-hidden border border-white/10 bg-white/10">
+            {avatar ? (
+              <img
+                src={avatar}
+                alt="avatar"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-white text-xl">
+                M
+              </div>
+            )}
+          </div>
+        </Link>
       </div>
     </header>
   );

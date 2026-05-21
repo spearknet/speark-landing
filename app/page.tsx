@@ -15,6 +15,7 @@ const groups = [
 
 export default function HomePage() {
   const [projects, setProjects] = useState<any[]>([]);
+  const [profiles, setProfiles] = useState<Record<string, any>>({});
   const [sparkCounts, setSparkCounts] = useState<Record<number, number>>({});
   const [activeGroup, setActiveGroup] = useState("All Projects");
   const [search, setSearch] = useState("");
@@ -28,12 +29,27 @@ export default function HomePage() {
 
       setProjects(projectsData || []);
 
+      const ownerIds = [...new Set((projectsData || []).map((p) => p.owner_id))];
+
+      if (ownerIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from("profiles")
+          .select("*")
+          .in("id", ownerIds);
+
+        const profileMap: Record<string, any> = {};
+        profilesData?.forEach((profile) => {
+          profileMap[profile.id] = profile;
+        });
+
+        setProfiles(profileMap);
+      }
+
       const { data: sparksData } = await supabase
         .from("project_sparks")
         .select("project_id");
 
       const counts: Record<number, number> = {};
-
       sparksData?.forEach((spark) => {
         counts[spark.project_id] = (counts[spark.project_id] || 0) + 1;
       });
@@ -132,43 +148,63 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredProjects.map((project) => (
-              <a key={project.id} href="/swipe" className="group block">
-                <div className="h-56 rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10">
-                  {project.image_url ? (
-                    <img
-                      src={project.image_url}
-                      alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-5xl">
-                      ⚡
-                    </div>
-                  )}
-                </div>
+            {filteredProjects.map((project) => {
+              const author = profiles[project.owner_id];
 
-                <div className="flex justify-between items-start mt-4">
-                  <div>
-                    <h2 className="text-xl font-bold">{project.title}</h2>
-                    <p className="text-white/40 text-sm mt-1">
-                      {project.description}
-                    </p>
-
-                    <p className="mt-3 text-red-400 text-sm font-medium">
-                      ⚡ {sparkCounts[project.id] || 0} Sparks
-                    </p>
+              return (
+                <a
+                  key={project.id}
+                  href={`/project/${project.id}`}
+                  className="group block"
+                >
+                  <div className="h-56 rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10">
+                    {project.image_url ? (
+                      <img
+                        src={project.image_url}
+                        alt={project.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-5xl">
+                        ⚡
+                      </div>
+                    )}
                   </div>
 
-                  <span className="text-2xl text-white/60">↗</span>
-                </div>
-              </a>
-            ))}
-          </div>
+                  <div className="flex justify-between items-start mt-4">
+                    <div>
+                      <h2 className="text-xl font-bold">{project.title}</h2>
+                      <p className="text-white/40 text-sm mt-1">
+                        {project.description}
+                      </p>
 
-          {filteredProjects.length === 0 && (
-            <p className="text-white/40 mt-20">No projects found.</p>
-          )}
+                      {author && (
+                        <div className="flex items-center gap-2 mt-3">
+                          <div className="w-7 h-7 rounded-full overflow-hidden bg-white/10">
+                            {author.avatar_url && (
+                              <img
+                                src={author.avatar_url}
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                          </div>
+                          <p className="text-white/50 text-sm">
+                            by {author.username}
+                          </p>
+                        </div>
+                      )}
+
+                      <p className="mt-3 text-red-400 text-sm font-medium">
+                        ⚡ {sparkCounts[project.id] || 0} Sparks
+                      </p>
+                    </div>
+
+                    <span className="text-2xl text-white/60">↗</span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
         </section>
       </div>
     </main>

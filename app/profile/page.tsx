@@ -3,187 +3,140 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-export default function ProfilePage() {
-  const [userId, setUserId] = useState("");
-  const [username, setUsername] = useState("");
-  const [skill, setSkill] = useState("");
-  const [bio, setBio] = useState("");
-  const [website, setWebsite] = useState("");
-  const [instagram, setInstagram] = useState("");
-  const [x, setX] = useState("");
-  const [github, setGithub] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
-  const [message, setMessage] = useState("");
+export default function MyProfilePage() {
+  const [profile, setProfile] = useState<any>(null);
+  const [projects, setProjects] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadProfile() {
-      const { data } = await supabase.auth.getUser();
+      const { data: userData } = await supabase.auth.getUser();
 
-      if (!data.user) {
+      if (!userData.user) {
         window.location.href = "/login";
         return;
       }
 
-      setUserId(data.user.id);
-
-      const { data: profile } = await supabase
+      const { data: profileData } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", data.user.id)
+        .eq("id", userData.user.id)
         .single();
 
-      if (profile) {
-        setUsername(profile.username || "");
-        setSkill(profile.skill || "");
-        setBio(profile.bio || "");
-        setWebsite(profile.website || "");
-        setInstagram(profile.instagram || "");
-        setX(profile.x || "");
-        setGithub(profile.github || "");
-        setAvatarUrl(profile.avatar_url || "");
-      }
+      setProfile(profileData);
+
+      const { data: projectData } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("owner_id", userData.user.id)
+        .order("created_at", { ascending: false });
+
+      setProjects(projectData || []);
     }
 
     loadProfile();
   }, []);
 
-  async function uploadAvatar(file: File) {
-    if (!userId) return;
-
-    const fileExt = file.name.split(".").pop();
-    const filePath = `avatars/${userId}-${Date.now()}.${fileExt}`;
-
-    const { error } = await supabase.storage
-      .from("uploads")
-      .upload(filePath, file);
-
-    if (error) {
-      setMessage(error.message);
-      return;
-    }
-
-    const { data } = supabase.storage.from("uploads").getPublicUrl(filePath);
-
-    setAvatarUrl(data.publicUrl);
-  }
-
-  async function saveProfile() {
-    if (!userId) {
-      setMessage("Please log in first.");
-      return;
-    }
-
-    const { error } = await supabase.from("profiles").upsert({
-      id: userId,
-      username,
-      skill,
-      bio,
-      website,
-      instagram,
-      x,
-      github,
-      avatar_url: avatarUrl,
-    });
-
-    if (error) setMessage(error.message);
-    else setMessage("Profile saved.");
+  if (!profile) {
+    return (
+      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+        Loading...
+      </main>
+    );
   }
 
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-12">
-      <div className="max-w-4xl mx-auto border border-white/10 rounded-[2rem] p-8 bg-white/[0.02]">
-        <h1 className="text-5xl font-bold mb-3">My profile</h1>
-        <p className="text-white/50 mb-10">
-          Your public Speark identity.
-        </p>
+    <main className="min-h-screen bg-black text-white px-6 py-14">
+      <div className="max-w-5xl mx-auto border border-white/10 rounded-[2rem] p-10 bg-white/[0.02]">
+        <div className="flex justify-end mb-8">
+          <a
+            href="/profile/edit"
+            className="px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-500 transition"
+          >
+            Edit profile
+          </a>
+        </div>
 
-        <div className="flex items-center gap-6 mb-10">
-          <div className="w-28 h-28 rounded-full bg-white/10 overflow-hidden border border-white/10">
-            {avatarUrl ? (
+        <div className="flex items-center gap-8 mb-10">
+          <div className="w-32 h-32 rounded-full overflow-hidden border border-white/10 bg-white/10">
+            {profile.avatar_url ? (
               <img
-                src={avatarUrl}
+                src={profile.avatar_url}
                 alt="avatar"
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-4xl">
-                {username?.[0] || "S"}
+              <div className="w-full h-full flex items-center justify-center text-5xl">
+                {profile.username?.[0]}
               </div>
             )}
           </div>
 
-          <label className="cursor-pointer px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5 transition">
-            Upload avatar
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) uploadAvatar(file);
-              }}
-            />
-          </label>
+          <div>
+            <h1 className="text-5xl font-bold">{profile.username}</h1>
+            <p className="text-red-400 mt-3 text-lg">{profile.skill}</p>
+          </div>
         </div>
 
-        <div className="space-y-4">
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none"
-          />
+        <p className="text-white/70 text-lg mb-8">{profile.bio}</p>
 
-          <input
-            value={skill}
-            onChange={(e) => setSkill(e.target.value)}
-            placeholder="Skill / role"
-            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none"
-          />
+        <div className="flex flex-wrap gap-3 mb-14">
+          {profile.website && (
+            <a
+              href={`https://${profile.website}`}
+              target="_blank"
+              className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5"
+            >
+              Website
+            </a>
+          )}
 
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            placeholder="Bio"
-            className="w-full min-h-36 bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none resize-none"
-          />
+          {profile.instagram && (
+            <a
+              href={`https://instagram.com/${profile.instagram}`}
+              target="_blank"
+              className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5"
+            >
+              Instagram
+            </a>
+          )}
 
-          <input
-            value={website}
-            onChange={(e) => setWebsite(e.target.value)}
-            placeholder="Website"
-            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none"
-          />
+          {profile.x && (
+            <a
+              href={`https://x.com/${profile.x}`}
+              target="_blank"
+              className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5"
+            >
+              X
+            </a>
+          )}
 
-          <input
-            value={instagram}
-            onChange={(e) => setInstagram(e.target.value)}
-            placeholder="Instagram"
-            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none"
-          />
+          {profile.github && (
+            <a
+              href={`https://github.com/${profile.github}`}
+              target="_blank"
+              className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5"
+            >
+              GitHub
+            </a>
+          )}
+        </div>
 
-          <input
-            value={x}
-            onChange={(e) => setX(e.target.value)}
-            placeholder="X / Twitter"
-            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none"
-          />
+        <h2 className="text-3xl font-bold mb-6">Projects</h2>
 
-          <input
-            value={github}
-            onChange={(e) => setGithub(e.target.value)}
-            placeholder="GitHub"
-            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none"
-          />
+        <div className="grid gap-5">
+          {projects.map((project) => (
+            <div
+              key={project.id}
+              className="border border-white/10 rounded-[2rem] p-6"
+            >
+              <h3 className="text-2xl font-bold mb-3">{project.title}</h3>
+              <p className="text-white/60">{project.description}</p>
+            </div>
+          ))}
 
-          <button
-            onClick={saveProfile}
-            className="w-full py-5 rounded-2xl bg-red-600 hover:bg-red-500 transition font-medium"
-          >
-            Save profile
-          </button>
-
-          {message && <p className="text-white/50">{message}</p>}
+          {projects.length === 0 && (
+            <p className="text-white/40">No projects yet.</p>
+          )}
         </div>
       </div>
     </main>

@@ -48,26 +48,22 @@ export default function AppHeader() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
-      <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between gap-6">
-        <a href="/" className="text-xl font-bold tracking-wide">
-          Speark
-        </a>
-
-        <div className="relative flex-1 max-w-md">
+      <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-center gap-8">
+        <div className="relative w-full max-w-xl">
           <input
             value={search}
             onChange={(e) => searchUsers(e.target.value)}
             placeholder="Search users..."
-            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-3 outline-none text-sm"
+            className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none text-sm"
           />
 
           {results.length > 0 && (
-            <div className="absolute top-14 left-0 right-0 bg-black border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+            <div className="absolute top-16 left-0 right-0 bg-black border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
               {results.map((user: any) => (
                 <a
                   key={user.id}
                   href={`/u/${user.username}`}
-                  className="block px-4 py-3 hover:bg-white/[0.06]"
+                  className="block px-5 py-4 hover:bg-white/[0.06]"
                 >
                   <p className="font-medium">{user.username}</p>
                   <p className="text-sm text-white/40">{user.skill}</p>
@@ -77,42 +73,32 @@ export default function AppHeader() {
           )}
         </div>
 
-        <nav className="flex items-center gap-5 text-sm">
-          <a href="/swipe" className="text-white/60 hover:text-white">
-            Swipe
+        {user ? (
+          <a href="/profile" className="flex items-center gap-3">
+            <span className="hidden sm:block text-white/60">My Profile</span>
+
+            <div className="w-11 h-11 rounded-full bg-white/10 overflow-hidden border border-white/10">
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-sm">
+                  {profile?.username?.[0] || "S"}
+                </div>
+              )}
+            </div>
           </a>
-
-          <a href="/create-project" className="text-red-500 hover:text-red-400">
-            + Project
+        ) : (
+          <a
+            href="/login"
+            className="px-5 py-3 rounded-2xl bg-white text-black font-medium"
+          >
+            Login
           </a>
-
-          {user ? (
-            <a href="/profile" className="flex items-center gap-3">
-              <span className="hidden sm:block text-white/60">My Profile</span>
-
-              <div className="w-10 h-10 rounded-full bg-white/10 overflow-hidden border border-white/10">
-                {profile?.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt="avatar"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-sm">
-                    {profile?.username?.[0] || "S"}
-                  </div>
-                )}
-              </div>
-            </a>
-          ) : (
-            <a
-              href="/login"
-              className="px-5 py-3 rounded-2xl bg-white text-black font-medium"
-            >
-              Login
-            </a>
-          )}
-        </nav>
+        )}
       </div>
     </header>
   );

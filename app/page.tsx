@@ -80,12 +80,13 @@ export default function HomePage() {
             <p className="text-white/50 mb-6">
               Join a community of builders.
             </p>
-            <a
-              href="/login"
-              className="inline-block px-6 py-3 rounded-2xl bg-white text-black font-medium"
-            >
-              Join
-            </a>
+<a
+  href="https://discord.gg/8B8rjHv8vE"
+  target="_blank"
+  className="inline-flex items-center justify-center px-6 py-4 rounded-2xl bg-white text-black font-medium hover:opacity-90 transition"
+>
+  Join
+</a>
           </div>
         </aside>
 

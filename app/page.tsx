@@ -15,20 +15,33 @@ const groups = [
 
 export default function HomePage() {
   const [projects, setProjects] = useState<any[]>([]);
+  const [sparkCounts, setSparkCounts] = useState<Record<number, number>>({});
   const [activeGroup, setActiveGroup] = useState("All Projects");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    async function loadProjects() {
-      const { data } = await supabase
+    async function loadData() {
+      const { data: projectsData } = await supabase
         .from("projects")
         .select("*")
         .order("created_at", { ascending: false });
 
-      setProjects(data || []);
+      setProjects(projectsData || []);
+
+      const { data: sparksData } = await supabase
+        .from("project_sparks")
+        .select("project_id");
+
+      const counts: Record<number, number> = {};
+
+      sparksData?.forEach((spark) => {
+        counts[spark.project_id] = (counts[spark.project_id] || 0) + 1;
+      });
+
+      setSparkCounts(counts);
     }
 
-    loadProjects();
+    loadData();
   }, []);
 
   const filteredProjects = projects.filter((project) => {
@@ -80,13 +93,13 @@ export default function HomePage() {
             <p className="text-white/50 mb-6">
               Join a community of builders.
             </p>
-<a
-  href="https://discord.gg/8B8rjHv8vE"
-  target="_blank"
-  className="inline-flex items-center justify-center px-6 py-4 rounded-2xl bg-white text-black font-medium hover:opacity-90 transition"
->
-  Join
-</a>
+            <a
+              href="https://discord.gg/TWOJ-LINK"
+              target="_blank"
+              className="inline-block px-6 py-3 rounded-2xl bg-white text-black font-medium"
+            >
+              Join
+            </a>
           </div>
         </aside>
 
@@ -120,11 +133,7 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
-              <a
-                key={project.id}
-                href="/swipe"
-                className="group block"
-              >
+              <a key={project.id} href="/swipe" className="group block">
                 <div className="h-56 rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10">
                   {project.image_url ? (
                     <img
@@ -143,7 +152,11 @@ export default function HomePage() {
                   <div>
                     <h2 className="text-xl font-bold">{project.title}</h2>
                     <p className="text-white/40 text-sm mt-1">
-                      {project.category}
+                      {project.description}
+                    </p>
+
+                    <p className="mt-3 text-red-400 text-sm font-medium">
+                      ⚡ {sparkCounts[project.id] || 0} Sparks
                     </p>
                   </div>
 

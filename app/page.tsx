@@ -72,8 +72,8 @@ export default function HomePage() {
   });
 
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-10">
-      <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-10 max-w-7xl mx-auto">
+    <main className="min-h-screen bg-black text-white px-4 sm:px-6 py-8 sm:py-10">
+      <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8 lg:gap-10 max-w-7xl mx-auto">
         <aside className="space-y-4">
           <div className="text-xl font-bold tracking-wide mb-8">Projects:</div>
 
@@ -147,7 +147,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredProjects.map((project) => {
               const author = profiles[project.owner_id];
 

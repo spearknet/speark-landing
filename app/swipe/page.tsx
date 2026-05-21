@@ -161,16 +161,16 @@ export default function SwipePage() {
       <div className="max-w-2xl mx-auto">
         <div className="border border-white/10 rounded-[2.5rem] overflow-hidden bg-white/[0.02]">
           <div className="h-[320px] bg-gradient-to-br from-red-900/40 to-black flex items-center justify-center">
-            {project.image_url ? (
-              <img
-                src={project.image_url}
-                className="w-full h-full object-cover"
-                alt={project.title}
-              />
-            ) : (
-              <div className="text-7xl">⚡</div>
-            )}
-          </div>
+  {project.image_urls?.[0] || project.image_url ? (
+    <img
+      src={project.image_urls?.[0] || project.image_url}
+      className="w-full h-full object-cover"
+      alt={project.title}
+    />
+  ) : (
+    <div className="text-7xl">⚡</div>
+  )}
+</div>
 
           <div className="p-8">
             <div className="flex items-center justify-between mb-4">
@@ -220,7 +220,7 @@ export default function SwipePage() {
                 }`}
               >
                 ⚡ Spark
-              </button>
+              </button>a
 
               <button
                 onClick={joinProject}

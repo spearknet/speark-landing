@@ -203,37 +203,32 @@ export default function SwipePage() {
               ))}
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <button
-                onClick={nextProject}
-                className="h-16 rounded-2xl border border-white/10 hover:bg-white/5 transition"
-              >
-                Pass
-              </button>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <button
+    onClick={nextProject}
+    className="h-16 rounded-2xl border border-white/10 hover:bg-white/5 transition"
+  >
+    Pass
+  </button>
 
-              <button
-                onClick={sparkProject}
-                className={`h-16 rounded-2xl transition font-medium ${
-                  sparked[project.id]
-                    ? "bg-white text-black"
-                    : "border border-red-500/40 text-red-400 hover:bg-red-500/10"
-                }`}
-              >
-                ⚡ Spark
-              </button>a
+  <button
+    onClick={sparkProject}
+    className={`h-16 rounded-2xl transition font-medium ${
+      sparked[project.id]
+        ? "bg-white text-black"
+        : "border border-red-500/40 text-red-400 hover:bg-red-500/10"
+    }`}
+  >
+    ⚡ Spark
+  </button>
 
-              <button
-                onClick={joinProject}
-                className="h-16 rounded-2xl bg-red-500 hover:bg-red-600 transition font-medium"
-              >
-                Join
-              </button>
-            </div>
-
-            {message && (
-              <p className="mt-5 text-center text-white/50">{message}</p>
-            )}
-          </div>
+  <button
+    onClick={joinProject}
+    className="h-16 rounded-2xl bg-red-500 hover:bg-red-600 transition font-medium"
+  >
+    Join
+  </button>
+</div>
         </div>
 
         <div className="text-center text-white/30 mt-8">

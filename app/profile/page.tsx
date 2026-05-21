@@ -6,35 +6,52 @@ import { supabase } from "@/lib/supabase";
 export default function MyProfilePage() {
   const [profile, setProfile] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
+  const [userId, setUserId] = useState("");
 
-  useEffect(() => {
-    async function loadProfile() {
-      const { data: userData } = await supabase.auth.getUser();
+  async function loadProfile() {
+    const { data: userData } = await supabase.auth.getUser();
 
-      if (!userData.user) {
-        window.location.href = "/login";
-        return;
-      }
-
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userData.user.id)
-        .single();
-
-      setProfile(profileData);
-
-      const { data: projectData } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("owner_id", userData.user.id)
-        .order("created_at", { ascending: false });
-
-      setProjects(projectData || []);
+    if (!userData.user) {
+      window.location.href = "/login";
+      return;
     }
 
+    setUserId(userData.user.id);
+
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userData.user.id)
+      .single();
+
+    setProfile(profileData);
+
+    const { data: projectData } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("owner_id", userData.user.id)
+      .order("created_at", { ascending: false });
+
+    setProjects(projectData || []);
+  }
+
+  useEffect(() => {
     loadProfile();
   }, []);
+
+  async function deleteProject(projectId: number) {
+    const confirmDelete = window.confirm("Delete this project?");
+
+    if (!confirmDelete) return;
+
+    await supabase
+      .from("projects")
+      .delete()
+      .eq("id", projectId)
+      .eq("owner_id", userId);
+
+    setProjects((prev) => prev.filter((project) => project.id !== projectId));
+  }
 
   if (!profile) {
     return (
@@ -127,10 +144,19 @@ export default function MyProfilePage() {
           {projects.map((project) => (
             <div
               key={project.id}
-              className="border border-white/10 rounded-[2rem] p-6"
+              className="border border-white/10 rounded-[2rem] p-6 flex items-center justify-between gap-6"
             >
-              <h3 className="text-2xl font-bold mb-3">{project.title}</h3>
-              <p className="text-white/60">{project.description}</p>
+              <div>
+                <h3 className="text-2xl font-bold mb-3">{project.title}</h3>
+                <p className="text-white/60">{project.description}</p>
+              </div>
+
+              <button
+                onClick={() => deleteProject(project.id)}
+                className="px-5 py-3 rounded-2xl border border-red-500/40 text-red-400 hover:bg-red-500/10 transition"
+              >
+                Delete
+              </button>
             </div>
           ))}
 

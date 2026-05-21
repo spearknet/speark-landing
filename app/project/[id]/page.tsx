@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
+function cleanUrl(url: string) {
+  return url.startsWith("http") ? url : `https://${url}`;
+}
+
 export default function ProjectPage() {
   const params = useParams();
   const id = params.id as string;
@@ -47,6 +51,12 @@ export default function ProjectPage() {
       ? [project.image_url]
       : [];
 
+  const tags = Array.isArray(project.tags)
+    ? project.tags
+    : typeof project.tags === "string"
+    ? project.tags.split(",")
+    : [];
+
   function prevImage() {
     setImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   }
@@ -83,7 +93,41 @@ export default function ProjectPage() {
           <p className="text-white/70 text-xl leading-relaxed mb-10">{project.description}</p>
 
           <p className="text-white/40 mb-2">Looking for</p>
-          <p className="text-2xl mb-12">{project.looking_for}</p>
+          <p className="text-2xl mb-8">{project.looking_for}</p>
+
+          <div className="flex flex-wrap gap-3 mb-10">
+            {tags.map((tag: string) => (
+              <span key={tag} className="px-4 py-2 rounded-full bg-white/10 text-white/70">
+                {tag.trim()}
+              </span>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-3 mb-12">
+            {project.website && (
+              <a href={cleanUrl(project.website)} target="_blank" className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5">
+                Website
+              </a>
+            )}
+
+            {project.instagram && (
+              <a href={`https://instagram.com/${project.instagram.replace("@", "")}`} target="_blank" className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5">
+                Instagram
+              </a>
+            )}
+
+            {project.x && (
+              <a href={`https://x.com/${project.x.replace("@", "")}`} target="_blank" className="px-5 py-3 rounded-2xl border border-white/10 hover:bg-white/5">
+                X
+              </a>
+            )}
+
+            {project.discord && (
+              <a href={cleanUrl(project.discord)} target="_blank" className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500">
+                Discord
+              </a>
+            )}
+          </div>
 
           {author && (
             <a href={`/u/${author.username}`} className="flex items-center gap-5 border border-white/10 rounded-3xl p-5 hover:bg-white/5 transition">

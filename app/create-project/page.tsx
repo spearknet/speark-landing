@@ -19,6 +19,10 @@ export default function CreateProjectPage() {
   const [lookingFor, setLookingFor] = useState("");
   const [tags, setTags] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [website, setWebsite] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [x, setX] = useState("");
+  const [discord, setDiscord] = useState("");
   const [message, setMessage] = useState("");
 
   async function uploadImages(files: FileList) {
@@ -45,7 +49,6 @@ export default function CreateProjectPage() {
       }
 
       const { data } = supabase.storage.from("uploads").getPublicUrl(filePath);
-
       setImageUrls((prev) => [...prev, data.publicUrl].slice(0, 10));
     }
 
@@ -68,6 +71,10 @@ export default function CreateProjectPage() {
       tags: tags.split(",").map((tag) => tag.trim()),
       image_url: imageUrls[0] || "",
       image_urls: imageUrls,
+      website,
+      instagram,
+      x,
+      discord,
       owner_id: userData.user.id,
     });
 
@@ -83,7 +90,7 @@ export default function CreateProjectPage() {
     <main className="min-h-screen bg-black text-white px-6 py-16">
       <div className="max-w-2xl mx-auto border border-white/10 rounded-[2rem] p-8 bg-white/[0.02]">
         <h1 className="text-5xl font-bold mb-3">Add Project</h1>
-        <p className="text-white/50 mb-10">Upload up to 10 images.</p>
+        <p className="text-white/50 mb-10">Upload images and add project socials.</p>
 
         <div className="space-y-5">
           <label className="block cursor-pointer border border-white/10 rounded-3xl overflow-hidden bg-white/[0.03]">
@@ -125,6 +132,14 @@ export default function CreateProjectPage() {
           <input value={lookingFor} onChange={(e) => setLookingFor(e.target.value)} placeholder="Looking for" className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none" />
 
           <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Tags separated by comma" className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none" />
+
+          <input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="Website link" className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none" />
+
+          <input value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="Instagram username" className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none" />
+
+          <input value={x} onChange={(e) => setX(e.target.value)} placeholder="X username" className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none" />
+
+          <input value={discord} onChange={(e) => setDiscord(e.target.value)} placeholder="Discord invite link" className="w-full bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 outline-none" />
 
           <button onClick={createProject} className="w-full py-5 rounded-2xl bg-red-600 hover:bg-red-500 transition font-medium">
             Add Project

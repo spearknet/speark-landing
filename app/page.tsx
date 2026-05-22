@@ -1,211 +1,23 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-
-const groups = [
-  "All Projects",
-  "Creators Projects",
-  "Developers Projects",
-  "Artists Projects",
-  "Entrepreneurs Projects",
-  "Builders Projects",
-  "Other Projects",
-];
-
-export default function HomePage() {
-  const [projects, setProjects] = useState<any[]>([]);
-  const [profiles, setProfiles] = useState<Record<string, any>>({});
-  const [sparkCounts, setSparkCounts] = useState<Record<number, number>>({});
-  const [activeGroup, setActiveGroup] = useState("All Projects");
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    async function loadData() {
-      const { data: projectsData } = await supabase
-        .from("projects")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      setProjects(projectsData || []);
-
-      const ownerIds = [...new Set((projectsData || []).map((p) => p.owner_id))];
-
-      if (ownerIds.length > 0) {
-        const { data: profilesData } = await supabase
-          .from("profiles")
-          .select("*")
-          .in("id", ownerIds);
-
-        const profileMap: Record<string, any> = {};
-        profilesData?.forEach((profile) => {
-          profileMap[profile.id] = profile;
-        });
-
-        setProfiles(profileMap);
-      }
-
-      const { data: sparksData } = await supabase
-        .from("project_sparks")
-        .select("project_id");
-
-      const counts: Record<number, number> = {};
-      sparksData?.forEach((spark) => {
-        counts[spark.project_id] = (counts[spark.project_id] || 0) + 1;
-      });
-
-      setSparkCounts(counts);
-    }
-
-    loadData();
-  }, []);
-
-  const filteredProjects = projects.filter((project) => {
-    const matchesGroup =
-      activeGroup === "All Projects" || project.category === activeGroup;
-
-    const matchesSearch =
-      project.title?.toLowerCase().includes(search.toLowerCase()) ||
-      project.description?.toLowerCase().includes(search.toLowerCase());
-
-    return matchesGroup && matchesSearch;
-  });
-
+export default function ClosedPage() {
   return (
-    <main className="min-h-screen bg-black text-white px-4 sm:px-6 py-8 sm:py-10">
-      <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8 lg:gap-10 max-w-7xl mx-auto">
-        <aside className="space-y-4">
-          <div className="text-xl font-bold tracking-wide mb-8">Projects:</div>
+    <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+      <div className="text-center max-w-2xl">
+        <h1 className="text-6xl font-bold mb-6">
+          Speark is Closed
+        </h1>
 
-          {groups.map((group) => (
-            <button
-              key={group}
-              onClick={() => setActiveGroup(group)}
-              className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl border transition ${
-                activeGroup === group
-                  ? "border-red-500/40 bg-red-500/10"
-                  : "border-white/10 bg-white/[0.02] hover:bg-white/[0.05]"
-              }`}
-            >
-              <span className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
-                ▲
-              </span>
-              <span className="text-sm font-medium text-left">{group}</span>
-            </button>
-          ))}
+        <p className="text-white/60 text-xl mb-10">
+          Thank you to everyone who was part of the journey.
+        </p>
 
-          <div className="pt-8">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search..."
-              className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 outline-none"
-            />
-          </div>
-
-          <div className="mt-20 border border-white/10 rounded-3xl p-6 bg-white/[0.03]">
-            <div className="w-12 h-12 rounded-xl bg-red-500/20 mb-5" />
-            <h3 className="text-xl font-bold mb-2">For Members</h3>
-            <p className="text-white/50 mb-6">
-              Join a community of builders.
-            </p>
-            <a
-              href="https://discord.gg/8B8rjHv8vE"
-              target="_blank"
-              className="inline-block px-6 py-3 rounded-2xl bg-white text-black font-medium"
-            >
-              Join
-            </a>
-          </div>
-        </aside>
-
-        <section>
-          <div className="flex items-center justify-between mb-16">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-3">
-                Push Your Project.
-              </h1>
-              <p className="text-white/50 text-lg">
-                A social network for creators, developers, artists,
-                entrepreneurs, and builders.
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              <a
-                href="/create-project"
-                className="px-6 py-4 rounded-2xl border border-red-500 text-red-400 hover:bg-red-500/10"
-              >
-                Add Project
-              </a>
-              <a
-                href="/swipe"
-                className="px-6 py-4 rounded-2xl bg-white/10 hover:bg-white/15"
-              >
-                Match
-              </a>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredProjects.map((project) => {
-              const author = profiles[project.owner_id];
-
-              return (
-                <a
-                  key={project.id}
-                  href={`/project/${project.id}`}
-                  className="group block"
-                >
-                  <div className="h-56 rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10">
-                    {project.image_url ? (
-                      <img
-                        src={project.image_url}
-                        alt={project.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-5xl">
-                        ⚡
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex justify-between items-start mt-4">
-                    <div>
-                      <h2 className="text-xl font-bold">{project.title}</h2>
-                      <p className="text-white/40 text-sm mt-1">
-                        {project.description}
-                      </p>
-
-                      {author && (
-                        <div className="flex items-center gap-2 mt-3">
-                          <div className="w-7 h-7 rounded-full overflow-hidden bg-white/10">
-                            {author.avatar_url && (
-                              <img
-                                src={author.avatar_url}
-                                className="w-full h-full object-cover"
-                              />
-                            )}
-                          </div>
-                          <p className="text-white/50 text-sm">
-                            by {author.username}
-                          </p>
-                        </div>
-                      )}
-
-                      <p className="mt-3 text-red-400 text-sm font-medium">
-                        ⚡ {sparkCounts[project.id] || 0} Sparks
-                      </p>
-                    </div>
-
-                    <span className="text-2xl text-white/60">↗</span>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        </section>
+        <a
+          href="https://www.youtube.com/watch?v=fj2ddkPgiMU"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-red-500 hover:bg-red-600 transition text-xl font-semibold"
+        >
+          STOP STALKING
+        </a>
       </div>
     </main>
   );
